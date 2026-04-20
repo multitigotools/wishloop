@@ -39,34 +39,78 @@ app.get("/wishloop", (req, res) => {
   res.send(`
   <html>
   <head>
-    <title>WishLoop 🎁</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>WishLoop 🎁</title>
+
     <style>
       body {
         margin:0;
         font-family:Arial;
-        background:#0f172a;
+        background:linear-gradient(135deg,#0f172a,#1e293b);
         color:white;
         display:flex;
-        justify-content:center;
+        flex-direction:column;
         align-items:center;
-        height:100vh;
+        padding:20px;
       }
+
+      h1 {
+        margin-bottom:10px;
+      }
+
+      /* 🎁 PREVIEW CARD */
+      .preview {
+        width:90%;
+        max-width:420px;
+        border-radius:16px;
+        overflow:hidden;
+        margin:20px 0;
+        position:relative;
+        box-shadow:0 20px 60px rgba(0,0,0,0.5);
+      }
+
+      .preview img {
+        width:100%;
+        height:250px;
+        object-fit:cover;
+        filter:brightness(0.7);
+      }
+
+      .preview-text {
+        position:absolute;
+        top:50%;
+        left:50%;
+        transform:translate(-50%,-50%);
+        text-align:center;
+      }
+
+      .preview-text h2 {
+        margin:0;
+        font-size:22px;
+      }
+
+      .preview-text p {
+        font-size:14px;
+        opacity:0.9;
+      }
+
+      /* FORM */
       .box {
         background:#1e293b;
-        padding:30px;
+        padding:20px;
         border-radius:12px;
         width:90%;
         max-width:400px;
-        text-align:center;
       }
+
       input, textarea, select {
         width:100%;
         padding:12px;
-        margin:10px 0;
+        margin:8px 0;
         border-radius:8px;
         border:none;
       }
+
       button {
         width:100%;
         padding:14px;
@@ -76,50 +120,65 @@ app.get("/wishloop", (req, res) => {
         font-weight:bold;
         cursor:pointer;
       }
+
     </style>
   </head>
 
   <body>
 
-    <div class="box">
-      <h2>🎁 WishLoop</h2>
+    <h1>🎁 WishLoop</h1>
+    <p>Create → Send → Surprise</p>
 
+    <!-- 🔥 LIVE PREVIEW -->
+    <div class="preview">
+      <img id="previewImage" src="https://images.unsplash.com/photo-1513151233558-d860c5398176">
+
+      <div class="preview-text">
+        <h2 id="previewTitle">🎉 Happy Birthday 🎉</h2>
+        <p id="previewFrom">From: You</p>
+      </div>
+    </div>
+
+    <!-- FORM -->
+    <div class="box">
       <form action="/create" method="POST">
-        <select name="festival">
+
+        <select name="festival" id="festival" onchange="updatePreview()">
           <option>Birthday</option>
           <option>Diwali</option>
           <option>Mother's Day</option>
         </select>
 
-        <input name="from" placeholder="Your Name" required />
+        <input name="from" id="from" placeholder="Your Name" oninput="updatePreview()" required />
         <input name="to" placeholder="Receiver Name" required />
-        <textarea name="message" placeholder="Write your message" required></textarea>
+        <textarea name="message" placeholder="Write your message"></textarea>
 
         <button>Create Your Surprise Link 🎁</button>
+
       </form>
     </div>
+
+    <script>
+      const images = {
+        "Birthday": "https://images.unsplash.com/photo-1513151233558-d860c5398176",
+        "Diwali": "https://images.unsplash.com/photo-1607082350899-7e105aa886ae",
+        "Mother's Day": "https://images.unsplash.com/photo-1492724441997-5dc865305da7"
+      };
+
+      function updatePreview(){
+        const fest = document.getElementById("festival").value;
+        const from = document.getElementById("from").value || "You";
+
+        document.getElementById("previewTitle").innerText = "🎉 Happy " + fest + " 🎉";
+        document.getElementById("previewFrom").innerText = "From: " + from;
+        document.getElementById("previewImage").src = images[fest];
+      }
+    </script>
 
   </body>
   </html>
   `);
 });
-
-/* ===============================
-   CREATE CARD
-================================ */
-app.post("/create", (req, res) => {
-
-  const { from, to, message, festival } = req.body;
-
-  const id = Math.random().toString(36).substring(2,8);
-
-  cards[id] = {
-    from,
-    to,
-    message,
-    festival,
-    views: 0
-  };
 
   const link = "https://multitigo.com/w/" + id;
 
