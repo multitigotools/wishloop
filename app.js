@@ -72,13 +72,46 @@ app.get("/wishloop", (req, res) => {
         border-radius:12px;
       }
 
-      input, textarea, select {
-        width:100%;
-        padding:12px;
-        margin:8px 0;
-        border-radius:8px;
-        border:none;
-      }
+     * {
+  box-sizing: border-box;
+}
+
+.box {
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+input, textarea, select {
+  width:100%;
+  padding:14px;
+  border-radius:10px;
+  border:none;
+  font-size:15px;
+  outline:none;
+}
+
+textarea {
+  resize:none;
+  height:80px;
+}
+
+button {
+  margin-top:10px;
+  padding:16px;
+  border:none;
+  border-radius:10px;
+  background:#22c55e;
+  color:#000;
+  font-weight:bold;
+  font-size:16px;
+  cursor:pointer;
+  transition:0.3s;
+}
+
+button:hover {
+  transform:scale(1.03);
+}
 
       button {
         width:100%;
