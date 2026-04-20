@@ -167,56 +167,99 @@ app.get("/wishloop/card/:id", (req, res) => {
 
   const fest = festivals[festival] || festivals["Birthday"];
 
+  const imageUrl = "https://multitigo.com/wp-content/uploads/2024/01/greeting.jpg"; 
+  // 👉 Replace with your real image
+
   res.send(`
   <html>
   <head>
-    <title>Someone sent you a Wish 🎁</title>
+    <title>🎁 You received a Wish!</title>
 
-    <meta property="og:title" content="Someone sent you a Wish 🎉" />
-    <meta property="og:description" content="Tap to open your surprise message" />
+    <!-- WhatsApp Preview -->
+    <meta property="og:title" content="${from} sent you a ${fest.name} wish 🎉" />
+    <meta property="og:description" content="${message}" />
+    <meta property="og:image" content="${imageUrl}" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
     <style>
       body {
+        margin:0;
+        font-family: 'Segoe UI', sans-serif;
+        background: linear-gradient(135deg, #0f172a, #1e293b);
+        color:white;
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        height:100vh;
+      }
+
+      .container {
+        background:#111827;
+        padding:30px;
+        border-radius:16px;
+        width:90%;
+        max-width:400px;
         text-align:center;
-        background:#0f172a;
-        color:#fff;
-        font-family:Arial;
-        padding:40px;
+        box-shadow:0 10px 30px rgba(0,0,0,0.5);
+      }
+
+      .title {
+        font-size:22px;
+        margin-bottom:10px;
+      }
+
+      .image {
+        width:100%;
+        border-radius:12px;
+        margin-bottom:20px;
       }
 
       .card {
-        background:#1e293b;
-        padding:20px;
+        background:#1f2937;
+        padding:15px;
         border-radius:10px;
-        display:inline-block;
+        margin-top:10px;
       }
 
       .btn {
         margin-top:20px;
-        display:inline-block;
-        padding:12px 20px;
+        padding:12px;
+        width:100%;
+        border:none;
+        border-radius:8px;
+        font-weight:bold;
+        cursor:pointer;
         background:${fest.themeColor};
-        color:#000;
-        text-decoration:none;
-        border-radius:6px;
+        color:black;
+        font-size:16px;
+      }
+
+      .btn:hover {
+        opacity:0.9;
       }
     </style>
   </head>
 
   <body>
 
-    <h2>🎉 ${from} sent you a ${fest.name} wish</h2>
+    <div class="container">
 
-    <div class="card">
-      <h3>To: ${to}</h3>
-      <p>${message}</p>
+      <h2 class="title">🎉 You got a Wish!</h2>
+
+      <img src="${imageUrl}" class="image"/>
+
+      <h3>${from} → ${to}</h3>
+
+      <div class="card">
+        ${message}
+      </div>
+
+      <a href="https://multitigo.com/wishloop">
+        <button class="btn">👉 Create Your Own</button>
+      </a>
+
     </div>
-
-    <br/>
-
-    <a class="btn" href="https://multitigo.com/wishloop">
-      👉 Create your own
-    </a>
 
   </body>
   </html>
