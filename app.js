@@ -44,21 +44,42 @@ app.get("/wishloop", (req, res) => {
       body {
         margin:0;
         font-family: 'Segoe UI', sans-serif;
-        background: linear-gradient(135deg, #0f172a, #1e293b);
-        color:white;
+        height:100vh;
         display:flex;
         justify-content:center;
         align-items:center;
-        height:100vh;
+        transition: all 0.5s ease;
+        background-size: cover;
+        background-position: center;
+      }
+
+      /* DARK OVERLAY */
+      body::before {
+        content:'';
+        position:fixed;
+        top:0;
+        left:0;
+        width:100%;
+        height:100%;
+        background: rgba(15,23,42,0.75);
+        backdrop-filter: blur(6px);
+        z-index:0;
       }
 
       .box {
-        background:#111827;
+        position:relative;
+        z-index:1;
+        background: rgba(17,24,39,0.85);
         padding:30px;
         border-radius:16px;
         width:90%;
         max-width:400px;
         text-align:center;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+      }
+
+      h2 {
+        margin-bottom:20px;
       }
 
       input, textarea, select {
@@ -67,6 +88,7 @@ app.get("/wishloop", (req, res) => {
         margin:10px 0;
         border-radius:8px;
         border:none;
+        outline:none;
       }
 
       button {
@@ -77,20 +99,26 @@ app.get("/wishloop", (req, res) => {
         background:#22c55e;
         font-weight:bold;
         cursor:pointer;
+        transition:0.3s;
       }
+
+      button:hover {
+        background:#16a34a;
+      }
+
     </style>
   </head>
 
-  <body>
+  <body id="page">
 
     <div class="box">
       <h2>🎁 WishLoop</h2>
 
       <form action="/create" method="POST">
-        <select name="festival">
-          <option>Birthday</option>
-          <option>Diwali</option>
-          <option>Mother's Day</option>
+        <select name="festival" id="festival" onchange="changeBG()">
+          <option value="Birthday">Birthday</option>
+          <option value="Diwali">Diwali</option>
+          <option value="Mother's Day">Mother's Day</option>
         </select>
 
         <input name="from" placeholder="Your Name" required />
@@ -100,6 +128,24 @@ app.get("/wishloop", (req, res) => {
         <button>Create & Share 🚀</button>
       </form>
     </div>
+
+    <script>
+      function changeBG() {
+        const fest = document.getElementById("festival").value;
+        const page = document.getElementById("page");
+
+        const images = {
+          "Birthday": "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da",
+          "Diwali": "https://images.unsplash.com/photo-1607082349566-187342175e2f",
+          "Mother's Day": "https://images.unsplash.com/photo-1529336953121-a0ce7d6b00c5"
+        };
+
+        page.style.backgroundImage = "url(" + images[fest] + ")";
+      }
+
+      // Load default background
+      changeBG();
+    </script>
 
   </body>
   </html>
