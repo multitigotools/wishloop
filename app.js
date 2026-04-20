@@ -1,3 +1,4 @@
+app.use(express.urlencoded({ extended: true }));
 const express = require("express");
 const bodyParser = require("body-parser");
 
@@ -172,6 +173,33 @@ app.get("/wishloop", (req, res) => {
   </body>
   </html>
   `);
+});
+
+app.post("/create", (req, res) => {
+
+  const { from, to, message, festival } = req.body;
+
+  const id = Date.now();
+
+  const link = "https://multitigo.com/w/" + id;
+
+  res.send(`
+  <html>
+  <body style="text-align:center;background:#0f172a;color:white;padding:40px;">
+    <h2>🎉 Your Surprise is Ready!</h2>
+
+    <input value="${link}" style="width:80%;padding:10px"/>
+
+    <br/><br/>
+
+    <a href="https://wa.me/?text=${encodeURIComponent(`🎁 ${to}, you got a surprise from ${from}! 👉 ${link}`)}">
+      <button style="padding:12px;background:#22c55e;">Share on WhatsApp</button>
+    </a>
+
+  </body>
+  </html>
+  `);
+
 });
 
 /* ===============================
