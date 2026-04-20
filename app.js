@@ -37,6 +37,7 @@ app.get("/", (req, res) => {
 ================================ */
 app.get("/wishloop", (req, res) => {
   res.send(`
+  <!DOCTYPE html>
   <html>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -45,7 +46,7 @@ app.get("/wishloop", (req, res) => {
     <style>
       body {
         margin:0;
-        font-family: 'Segoe UI', sans-serif;
+        font-family: Arial;
         height:100vh;
         display:flex;
         justify-content:center;
@@ -58,7 +59,6 @@ app.get("/wishloop", (req, res) => {
         width:100%;
         height:100%;
         background:rgba(15,23,42,0.75);
-        backdrop-filter: blur(6px);
       }
 
       .container {
@@ -67,40 +67,31 @@ app.get("/wishloop", (req, res) => {
         text-align:center;
         width:90%;
         max-width:420px;
+        color:white;
       }
 
-      h1 {
-        margin-bottom:10px;
-      }
-
-      /* 🔥 LIVE PREVIEW CARD */
       .preview {
-        position:relative;
         border-radius:16px;
         overflow:hidden;
         margin-bottom:20px;
-        box-shadow:0 20px 60px rgba(0,0,0,0.6);
       }
 
       .preview img {
         width:100%;
-        height:240px;
+        height:220px;
         object-fit:cover;
-        filter:brightness(0.7);
       }
 
       .preview-text {
         position:absolute;
-        top:50%;
+        top:120px;
         left:50%;
-        transform:translate(-50%,-50%);
+        transform:translateX(-50%);
         color:white;
       }
 
-      /* FORM */
       .box {
-        background:rgba(30,41,59,0.7);
-        backdrop-filter: blur(10px);
+        background:#1e293b;
         padding:20px;
         border-radius:12px;
       }
@@ -120,9 +111,7 @@ app.get("/wishloop", (req, res) => {
         border-radius:8px;
         background:#22c55e;
         font-weight:bold;
-        cursor:pointer;
       }
-
     </style>
   </head>
 
@@ -132,15 +121,13 @@ app.get("/wishloop", (req, res) => {
 
     <div class="container">
 
-      <h1>🎁 WishLoop</h1>
-      <p>Create → Send → Surprise</p>
+      <h2>🎁 WishLoop</h2>
 
-      <!-- 🔥 PREVIEW -->
+      <!-- PREVIEW -->
       <div class="preview">
         <img id="previewImage" src="https://images.unsplash.com/photo-1513151233558-d860c5398176">
-
         <div class="preview-text">
-          <h2 id="previewTitle">🎉 Happy Birthday 🎉</h2>
+          <h3 id="previewTitle">Happy Birthday 🎉</h3>
           <p id="previewFrom">From: You</p>
         </div>
       </div>
@@ -159,7 +146,7 @@ app.get("/wishloop", (req, res) => {
           <input name="to" placeholder="Receiver Name" required />
           <textarea name="message" placeholder="Write your message"></textarea>
 
-          <button>Create Your Surprise Link 🎁</button>
+          <button>Create Surprise Link 🎁</button>
 
         </form>
       </div>
@@ -177,9 +164,8 @@ app.get("/wishloop", (req, res) => {
         const fest = document.getElementById("festival").value;
         const from = document.getElementById("from").value || "You";
 
-        document.getElementById("previewTitle").innerText = "🎉 Happy " + fest + " 🎉";
+        document.getElementById("previewTitle").innerText = "Happy " + fest + " 🎉";
         document.getElementById("previewFrom").innerText = "From: " + from;
-        document.body.style.backgroundImage = "url(" + images[fest] + ")";
         document.getElementById("previewImage").src = images[fest];
       }
     </script>
