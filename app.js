@@ -145,26 +145,40 @@ app.get("/wishloop", (req, res) => {
     </div>
 
     <script>
-      async function createCard() {
-        const category = document.getElementById("category").value;
-        const from = document.getElementById("from").value;
-        const to = document.getElementById("to").value;
-        const message = document.getElementById("message").value;
+async function createCard() {
+  const category = document.getElementById("category").value;
+  const from = document.getElementById("from").value;
+  const to = document.getElementById("to").value;
+  const message = document.getElementById("message").value;
 
-        const res = await fetch("/create-card", {
-          method:"POST",
-          headers:{"Content-Type":"application/json"},
-          body: JSON.stringify({ category, from, to, message })
-        });
+  const res = await fetch("/create-card", {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({ category, from, to, message })
+  });
 
-        const data = await res.json();
+  const data = await res.json();
 
-        const link = window.location.origin + data.link;
+  const link = window.location.origin + data.link;
 
-        document.getElementById("result").innerHTML =
-          "<a href='"+link+"' target='_blank'>Open Card</a><br/><br/>" + link;
-      }
-    </script>
+  document.getElementById("result").innerHTML = `
+    <p>✅ Your card is ready:</p>
+
+    <a href="${link}" target="_blank">${link}</a><br/><br/>
+
+    <button onclick="copyLink('${link}')">📋 Copy Link</button>
+    <br/><br/>
+    <a href="https://wa.me/?text=Someone sent you a surprise 🎁 Open now 👉 ${link}" target="_blank">
+      📲 Share on WhatsApp
+    </a>
+  `;
+}
+
+function copyLink(link) {
+  navigator.clipboard.writeText(link);
+  alert("Link copied!");
+}
+</script>
 
   </body>
   </html>
