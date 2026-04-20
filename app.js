@@ -80,103 +80,59 @@ app.get("/wishloop", (req, res) => {
     </option>`
   ).join("");
 
-  res.send(`
-  <html>
-  <head>
-    <title>WishLoop – Create & Send Wishes</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+ res.send(`
+<html>
+<head>
+  <title>Someone sent you a WishLoop 🎁</title>
 
-    <style>
-      body {
-        font-family: Arial;
-        background:#0f172a;
-        color:#fff;
-        text-align:center;
-        padding:30px;
-      }
+  <meta property="og:title" content="Someone sent you a WishLoop 🎉" />
+  <meta property="og:description" content="Tap to open your surprise message" />
+  <meta property="og:image" content="/og/${card.id}" />
 
-      h1 { font-size:28px; }
+  <style>
+    body {
+      text-align:center;
+      background:#0f172a;
+      color:#fff;
+      font-family:Arial;
+      padding:40px;
+    }
 
-      .box {
-        background:#1e293b;
-        padding:20px;
-        border-radius:10px;
-        max-width:400px;
-        margin:auto;
-      }
+    .card {
+      background:#1e293b;
+      padding:20px;
+      border-radius:10px;
+      display:inline-block;
+    }
 
-      input, textarea, select {
-        width:100%;
-        margin:10px 0;
-        padding:12px;
-        border-radius:6px;
-        border:none;
-      }
+    .btn {
+      margin-top:20px;
+      display:inline-block;
+      padding:12px 20px;
+      background:${fest.themeColor};
+      color:#000;
+      text-decoration:none;
+      border-radius:6px;
+    }
+  </style>
+</head>
 
-      button {
-        width:100%;
-        padding:12px;
-        background:#22c55e;
-        color:#fff;
-        border:none;
-        border-radius:6px;
-        font-size:16px;
-        cursor:pointer;
-      }
+<body>
 
-      .result {
-        margin-top:20px;
-        word-break:break-all;
-      }
-    </style>
-  </head>
+  <h2>🎉 ${card.from} sent you a ${fest.name} wish</h2>
 
-  <body>
+  <div class="card">
+    <h3>To: ${card.to}</h3>
+    <p>${card.message}</p>
+  </div>
 
-    <h1>🎁 WishLoop</h1>
-    <p>Create → Send → Spread Wishes</p>
+  <br/>
 
-    <h2>🔥 Create for ${nextFest.name}</h2>
+  <a class="btn" href="/wishloop">👉 Create your own</a>
 
-    <div class="box">
-
-      <select id="category">${options}</select>
-
-      <input id="from" placeholder="Your Name"/>
-      <input id="to" placeholder="Receiver Name"/>
-      <textarea id="message" placeholder="Write your message"></textarea>
-
-      <button onclick="createCard()">Create & Share 🚀</button>
-
-      <div class="result" id="result"></div>
-
-    </div>
-
-    <script>
-      async function createCard() {
-        const category = document.getElementById("category").value;
-        const from = document.getElementById("from").value;
-        const to = document.getElementById("to").value;
-        const message = document.getElementById("message").value;
-
-        const res = await fetch("/create-card", {
-          method:"POST",
-          headers:{"Content-Type":"application/json"},
-          body: JSON.stringify({ category, from, to, message })
-        });
-
-        const data = await res.json();
-
-        document.getElementById("result").innerHTML =
-          "🔗 <a href='"+data.link+"' target='_blank'>Open Card</a><br/><br/>" +
-          "Copy & Share:<br/>" + window.location.origin + data.link;
-      }
-    </script>
-
-  </body>
-  </html>
-  `);
-});
+</body>
+</html>
+`);
 
 /* =========================
    🎯 CREATE CARD
