@@ -1,27 +1,29 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const { createCanvas } = require("canvas");
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 
 /* ===============================
-   FESTIVAL CONFIG
+   MEMORY STORAGE
 ================================ */
-const festivals = {
-  "Birthday": {
-    name: "Birthday",
-    color: "#ff6b6b"
-  },
-  "Diwali": {
-    name: "Diwali",
-    color: "#f59e0b"
-  },
-  "Mother's Day": {
-    name: "Mother's Day",
-    color: "#22c55e"
-  }
-};
+const cards = {};
+
+/* ===============================
+   IMAGE SET (ADD YOUR 10 IMAGES)
+================================ */
+const images = [
+  "https://images.unsplash.com/photo-1513151233558-d860c5398176",
+  "https://images.unsplash.com/photo-1464349095431-e9a21285b5f3",
+  "https://images.unsplash.com/photo-1509042239860-f550ce710b93",
+  "https://images.unsplash.com/photo-1521302080371-df14c8c8c52d",
+  "https://images.unsplash.com/photo-1504674900247-0877df9cc836",
+  "https://images.unsplash.com/photo-1470337458703-46ad1756a187",
+  "https://images.unsplash.com/photo-1492684223066-81342ee5ff30",
+  "https://images.unsplash.com/photo-1521336575822-6da63fb45455",
+  "https://images.unsplash.com/photo-1486427944299-d1955d23e34d",
+  "https://images.unsplash.com/photo-1519681393784-d120267933ba"
+];
 
 /* ===============================
    HOME
@@ -31,7 +33,7 @@ app.get("/", (req, res) => {
 });
 
 /* ===============================
-   FORM UI (PREMIUM)
+   FORM PAGE
 ================================ */
 app.get("/wishloop", (req, res) => {
   res.send(`
@@ -39,58 +41,32 @@ app.get("/wishloop", (req, res) => {
   <head>
     <title>WishLoop 🎁</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
     <style>
       body {
         margin:0;
-        font-family: 'Segoe UI', sans-serif;
-        height:100vh;
+        font-family:Arial;
+        background:#0f172a;
+        color:white;
         display:flex;
         justify-content:center;
         align-items:center;
-        transition: all 0.5s ease;
-        background-size: cover;
-        background-position: center;
+        height:100vh;
       }
-
-      /* DARK OVERLAY */
-      body::before {
-        content:'';
-        position:fixed;
-        top:0;
-        left:0;
-        width:100%;
-        height:100%;
-        background: rgba(15,23,42,0.75);
-        backdrop-filter: blur(6px);
-        z-index:0;
-      }
-
       .box {
-        position:relative;
-        z-index:1;
-        background: rgba(17,24,39,0.85);
+        background:#1e293b;
         padding:30px;
-        border-radius:16px;
+        border-radius:12px;
         width:90%;
         max-width:400px;
         text-align:center;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.4);
       }
-
-      h2 {
-        margin-bottom:20px;
-      }
-
       input, textarea, select {
         width:100%;
         padding:12px;
         margin:10px 0;
         border-radius:8px;
         border:none;
-        outline:none;
       }
-
       button {
         width:100%;
         padding:14px;
@@ -99,53 +75,29 @@ app.get("/wishloop", (req, res) => {
         background:#22c55e;
         font-weight:bold;
         cursor:pointer;
-        transition:0.3s;
       }
-
-      button:hover {
-        background:#16a34a;
-      }
-
     </style>
   </head>
 
-  <body id="page">
+  <body>
 
     <div class="box">
       <h2>🎁 WishLoop</h2>
 
       <form action="/create" method="POST">
-        <select name="festival" id="festival" onchange="changeBG()">
-          <option value="Birthday">Birthday</option>
-          <option value="Diwali">Diwali</option>
-          <option value="Mother's Day">Mother's Day</option>
+        <select name="festival">
+          <option>Birthday</option>
+          <option>Diwali</option>
+          <option>Mother's Day</option>
         </select>
 
         <input name="from" placeholder="Your Name" required />
         <input name="to" placeholder="Receiver Name" required />
         <textarea name="message" placeholder="Write your message" required></textarea>
 
-        <button>Create & Share 🚀</button>
+        <button>Create Your Surprise Link 🎁</button>
       </form>
     </div>
-
-    <script>
-      function changeBG() {
-        const fest = document.getElementById("festival").value;
-        const page = document.getElementById("page");
-
-        const images = {
-          "Birthday": "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da",
-          "Diwali": "https://images.unsplash.com/photo-1607082349566-187342175e2f",
-          "Mother's Day": "https://images.unsplash.com/photo-1529336953121-a0ce7d6b00c5"
-        };
-
-        page.style.backgroundImage = "url(" + images[fest] + ")";
-      }
-
-      // Load default background
-      changeBG();
-    </script>
 
   </body>
   </html>
@@ -153,94 +105,71 @@ app.get("/wishloop", (req, res) => {
 });
 
 /* ===============================
-   CREATE LINK
+   CREATE CARD
 ================================ */
 app.post("/create", (req, res) => {
+
   const { from, to, message, festival } = req.body;
 
-  const id = Date.now();
+  const id = Math.random().toString(36).substring(2,8);
 
-  const link = `https://multitigo.com/wishloop/card/${id}?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&message=${encodeURIComponent(message)}&festival=${festival}`;
+  cards[id] = {
+    from,
+    to,
+    message,
+    festival,
+    views: 0
+  };
+
+  const link = "https://multitigo.com/w/" + id;
 
   res.send(`
   <html>
   <body style="text-align:center;background:#0f172a;color:white;padding:40px;">
-    <h2>🎉 Your Wish is Ready!</h2>
+    <h2>🎉 Your Surprise is Ready!</h2>
 
     <input value="${link}" style="width:80%;padding:10px"/>
 
     <br/><br/>
 
-    <a href="https://wa.me/?text=${encodeURIComponent("🎁 Someone sent you a surprise 👉 " + link)}">
+    <a href="https://wa.me/?text=${encodeURIComponent(`🎁 ${to}, you got a surprise from ${from}! 👉 ${link}`)}">
       <button style="padding:12px;background:#22c55e;">Share on WhatsApp</button>
     </a>
+
   </body>
   </html>
   `);
 });
 
 /* ===============================
-   DYNAMIC IMAGE GENERATION
+   CARD VIEW (VIRAL EXPERIENCE)
 ================================ */
-app.get("/generate-image/:id", (req, res) => {
-  const { from, message, festival } = req.query;
+app.get("/w/:id", (req, res) => {
 
-  const fest = festivals[festival] || festivals["Birthday"];
+  const card = cards[req.params.id];
+  if (!card) return res.send("Invalid link");
 
-  const canvas = createCanvas(1200, 630);
-  const ctx = canvas.getContext("2d");
+  card.views++;
 
-  // Background
-  ctx.fillStyle = fest.color;
-  ctx.fillRect(0, 0, 1200, 630);
-
-  // Text
-  ctx.fillStyle = "#fff";
-  ctx.font = "bold 60px Arial";
-  ctx.fillText(fest.name + " Wish 🎉", 100, 150);
-
-  ctx.font = "40px Arial";
-  ctx.fillText("From: " + from, 100, 250);
-
-  ctx.font = "30px Arial";
-  ctx.fillText(message.substring(0, 50), 100, 350);
-
-  res.setHeader("Content-Type", "image/png");
-  canvas.createPNGStream().pipe(res);
-});
-
-/* ===============================
-   CARD VIEW (WHATSAPP PREVIEW)
-================================ */
-app.get("/wishloop/card/:id", (req, res) => {
-  const { from, to, message, festival } = req.query;
-
-  const fest = festivals[festival] || festivals["Birthday"];
-
-  const imageUrl = `https://multitigo.com/generate-image/${req.params.id}?from=${encodeURIComponent(from)}&message=${encodeURIComponent(message)}&festival=${festival}`;
+  const index = card.views % images.length;
+  const selectedImage = images[index];
 
   res.send(`
   <html>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta property="og:title" content="${from} sent you a ${festival} wish 🎁" />
-    <meta property="og:description" content="${message}" />
-    <meta property="og:image" content="${imageUrl}" />
+    <meta property="og:title" content="${card.from} sent you a surprise 🎁" />
+    <meta property="og:description" content="${card.message}" />
+    <meta property="og:image" content="${selectedImage}" />
 
     <style>
       body {
         margin:0;
         font-family:Arial;
-        color:white;
         text-align:center;
-        overflow:hidden;
-        transition:0.5s;
-      }
-
-      body.bg {
-        background-size:cover;
-        background-position:center;
+        color:white;
+        background:#000;
       }
 
       .overlay {
@@ -248,8 +177,6 @@ app.get("/wishloop/card/:id", (req, res) => {
         width:100%;
         height:100%;
         background:rgba(0,0,0,0.4);
-        top:0;
-        left:0;
       }
 
       .container {
@@ -273,16 +200,10 @@ app.get("/wishloop/card/:id", (req, res) => {
 
       .card {
         display:none;
-        animation: fadeIn 1s ease forwards;
-      }
-
-      @keyframes fadeIn {
-        from {opacity:0; transform:scale(0.9)}
-        to {opacity:1; transform:scale(1)}
       }
 
       .box {
-        background:rgba(0,0,0,0.5);
+        background:rgba(0,0,0,0.6);
         padding:20px;
         border-radius:12px;
         display:inline-block;
@@ -295,59 +216,39 @@ app.get("/wishloop/card/:id", (req, res) => {
 
     <div class="overlay"></div>
 
-    <!-- STEP 1 (THIS IS WHAT YOU WERE ASKING ABOUT) -->
+    <!-- STEP 1 -->
     <div class="container" id="step1">
-
-      <h2>🎁 Hey ${to}!</h2>
-
-      <p>You’ve received a <b>${festival}</b> Wish 💖</p>
-
-      <p>👉 From: <b>${from}</b></p>
-
-      <p>Tap the gift to open your surprise 🎁</p>
-
+      <h2>🎁 Hey ${card.to}!</h2>
+      <p>You received a ${card.festival} Wish 💖</p>
+      <p>👉 From: <b>${card.from}</b></p>
+      <p>Tap the gift to open 🎁</p>
       <div class="gift" onclick="openGift()">🎁</div>
-
     </div>
 
     <!-- FINAL CARD -->
     <div class="container card" id="card">
+      <h1>🎉 Happy ${card.festival} 🎉</h1>
 
-      <h1>🎉 Happy ${festival} 🎉</h1>
-
-      <img src="${imageUrl}" style="width:90%;max-width:400px;border-radius:15px"/>
+      <img src="${selectedImage}" style="width:90%;max-width:400px;border-radius:15px"/>
 
       <div class="box">
-        <h3>To: ${to}</h3>
-        <p>${message}</p>
-        <p><b>From: ${from}</b></p>
+        <p>${card.message}</p>
+        <p><b>From: ${card.from}</b></p>
       </div>
 
       <br/>
 
       <a href="/wishloop">
-        <button style="padding:12px;background:#22c55e;border:none;border-radius:8px;">
-          Create Your Own
-        </button>
+        <button style="padding:12px;background:#22c55e;">Create Your Own</button>
       </a>
-
     </div>
 
     <script>
-      function openGift() {
+      function openGift(){
         document.getElementById("step1").style.display="none";
         document.getElementById("card").style.display="block";
-
-        const page = document.getElementById("page");
-
-        const backgrounds = {
-          "Birthday": "https://images.unsplash.com/photo-1513151233558-d860c5398176",
-          "Diwali": "https://images.unsplash.com/photo-1607082349566-187342175e2f",
-          "Mother's Day": "https://images.unsplash.com/photo-1529336953121-a0ce7d6b00c5"
-        };
-
-        page.style.backgroundImage = "url(" + backgrounds["${festival}"] + ")";
-        page.classList.add("bg");
+        document.body.style.backgroundImage = "url('${selectedImage}')";
+        document.body.style.backgroundSize = "cover";
       }
     </script>
 
@@ -357,7 +258,7 @@ app.get("/wishloop/card/:id", (req, res) => {
 });
 
 /* ===============================
-   START SERVER
+   SERVER
 ================================ */
 const PORT = process.env.PORT || 10000;
 
