@@ -1,122 +1,128 @@
 const express = require("express");
-const { v4: uuidv4 } = require("uuid");
-const { createCanvas } = require("canvas");
-
+const bodyParser = require("body-parser");
 const app = express();
-app.use(express.json());
 
-/* =========================
-   🎯 FESTIVAL CONFIG
-========================= */
+app.use(bodyParser.urlencoded({ extended: true }));
 
-const festivals = [
-  {
-    slug: "mothersday",
+/* ===============================
+   FESTIVAL CONFIG
+================================ */
+const festivals = {
+  "Mother's Day": {
     name: "Mother's Day",
-    date: "2026-05-10",
-    themeColor: "#ff4d6d"
+    themeColor: "#22c55e"
   },
-  {
-    slug: "fathersday",
-    name: "Father's Day",
-    date: "2026-06-21",
-    themeColor: "#4dabf7"
-  },
-  {
-    slug: "diwali",
-    name: "Diwali",
-    date: "2026-11-12",
-    themeColor: "#FFD700"
-  },
-  {
-    slug: "christmas",
-    name: "Christmas",
-    date: "2026-12-25",
-    themeColor: "#2ecc71"
-  },
-  {
-    slug: "birthday",
+  "Birthday": {
     name: "Birthday",
-    date: null,
-    themeColor: "#ff922b"
+    themeColor: "#f59e0b"
+  },
+  "Diwali": {
+    name: "Diwali",
+    themeColor: "#f97316"
   }
-];
+};
 
-/* =========================
-   🧠 STORAGE
-========================= */
+/* ===============================
+   HOME PAGE
+================================ */
+app.get("/", (req, res) => {
+  res.redirect("/wishloop");
+});
 
-const cards = [];
-
-/* =========================
-   🔮 NEXT FESTIVAL LOGIC
-========================= */
-
-function getNextFestival() {
-  const today = new Date();
-
-  const upcoming = festivals
-    .filter(f => f.date)
-    .map(f => ({
-      ...f,
-      diff: new Date(f.date) - today
-    }))
-    .filter(f => f.diff > 0)
-    .sort((a, b) => a.diff - b.diff);
-
-  return upcoming[0] || festivals[0];
-}
-
-/* =========================
-   🌐 MAIN PAGE
-========================= */
-
+/* ===============================
+   FORM PAGE
+================================ */
 app.get("/wishloop", (req, res) => {
-  const nextFest = getNextFestival();
-
-  const options = festivals.map(f =>
-    `<option value="${f.slug}" ${f.slug === nextFest.slug ? "selected" : ""}>
-      ${f.name}
-    </option>`
-  ).join("");
-
   res.send(`
   <html>
   <head>
     <title>WishLoop 🎁</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
     <style>
       body {
-        font-family: Arial;
+        text-align:center;
         background:#0f172a;
         color:#fff;
-        text-align:center;
-        padding:30px;
+        font-family:Arial;
+        padding:40px;
       }
-
-      .box {
-        background:#1e293b;
-        padding:20px;
-        border-radius:10px;
-        max-width:400px;
-        margin:auto;
-      }
-
       input, textarea, select {
-        width:100%;
-        margin:10px 0;
-        padding:12px;
-        border-radius:6px;
+        display:block;
+        margin:10px auto;
+        padding:10px;
+        width:250px;
+      }
+      button {
+        padding:12px 20px;
+        background:#22c55e;
         border:none;
+        color:#000;
+        font-weight:bold;
+        cursor:pointer;
+      }
+    </style>
+  </head>
+  <body>
+
+    <h1>🎁 WishLoop</h1>
+    <p>Create → Send → Spread Wishes</p>
+
+    <form action="/create" method="POST">
+      <select name="festival">
+        <option>Mother's Day</option>
+        <option>Birthday</option>
+        <option>Diwali</option>
+      </select>
+
+      <input name="from" placeholder="Your Name" required />
+      <input name="to" placeholder="Receiver Name" required />
+      <textarea name="message" placeholder="Write your message" required></textarea>
+
+      <button type="submit">Create & Share 🚀</button>
+    </form>
+
+  </body>
+  </html>
+  `);
+});
+
+/* ===============================
+   CREATE CARD
+================================ */
+app.post("/create", (req, res) => {
+  const { from, to, message, festival } = req.body;
+
+  const fest = festivals[festival] || festivals["Birthday"];
+
+  const id = Date.now(); // simple ID
+
+  const link = `https://multitigo.com/wishloop/card/${id}?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&message=${encodeURIComponent(message)}&festival=${encodeURIComponent(festival)}`;
+
+  res.send(`
+  <html>
+  <head>
+    <title>Your Wish is Ready 🎉</title>
+    <style>
+      body {
+        text-align:center;
+        background:#0f172a;
+        color:#fff;
+        font-family:Arial;
+        padding:40px;
       }
 
-      button {
-        width:100%;
-        padding:12px;
-        background:#22c55e;
-        color:#fff;
-        border:none;
+      input {
+        width:80%;
+        padding:10px;
+        margin-top:20px;
+      }
+
+      .btn {
+        margin-top:20px;
+        display:inline-block;
+        padding:12px 20px;
+        background:${fest.themeColor};
+        color:#000;
+        text-decoration:none;
         border-radius:6px;
         cursor:pointer;
       }
@@ -125,129 +131,49 @@ app.get("/wishloop", (req, res) => {
 
   <body>
 
-    <h1>🎁 WishLoop</h1>
-    <p>Create → Send → Spread Wishes</p>
+    <h2>🎉 Your Wish is Ready!</h2>
 
-    <h2>🔥 Create for ${nextFest.name}</h2>
+    <input id="linkBox" value="${link}" readonly />
 
-    <div class="box">
+    <br/>
 
-      <select id="category">${options}</select>
+    <button class="btn" onclick="copyLink()">📋 Copy Link</button>
 
-      <input id="from" placeholder="Your Name"/>
-      <input id="to" placeholder="Receiver Name"/>
-      <textarea id="message" placeholder="Write your message"></textarea>
+    <br/>
 
-      <button onclick="createCard()">Create & Share 🚀</button>
-
-      <p id="result"></p>
-
-    </div>
-
-    <script>
-async function createCard() {
-  const category = document.getElementById("category").value;
-  const from = document.getElementById("from").value;
-  const to = document.getElementById("to").value;
-  const message = document.getElementById("message").value;
-
-  const res = await fetch("/create-card", {
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body: JSON.stringify({ category, from, to, message })
-  });
-
-  const data = await res.json();
-
-  const link = window.location.origin + data.link;
-
-  document.getElementById("result").innerHTML = `
-    <p>✅ Your card is ready:</p>
-
-    <a href="${link}" target="_blank">${link}</a><br/><br/>
-
-    <button onclick="copyLink('${link}')">📋 Copy Link</button>
-    <br/><br/>
-    <a href="https://wa.me/?text=Someone sent you a surprise 🎁 Open now 👉 ${link}" target="_blank">
+    <a class="btn" href="https://wa.me/?text=${encodeURIComponent("Check this wish 🎁 👉 " + link)}">
       📲 Share on WhatsApp
     </a>
-  `;
-}
 
-function copyLink(link) {
-  navigator.clipboard.writeText(link);
-  alert("Link copied!");
-}
-</script>
+    <script>
+      function copyLink() {
+        const copyText = document.getElementById("linkBox");
+        copyText.select();
+        document.execCommand("copy");
+        alert("Link copied!");
+      }
+    </script>
 
   </body>
   </html>
   `);
 });
 
-/* =========================
-   🎯 CREATE CARD
-========================= */
+/* ===============================
+   VIEW CARD
+================================ */
+app.get("/wishloop/card/:id", (req, res) => {
+  const { from, to, message, festival } = req.query;
 
-app.post("/create-card", (req, res) => {
-  const { category, from, to, message } = req.body;
-
-  const id = uuidv4();
-
-  cards.push({ id, category, from, to, message });
-
-  res.json({ link: "/card/" + id });
-});
-
-/* =========================
-   🖼️ OG IMAGE
-========================= */
-
-app.get("/og/:id", (req, res) => {
-  const card = cards.find(c => c.id === req.params.id);
-  if (!card) return res.send("Not found");
-
-  const fest = festivals.find(f => f.slug === card.category);
-
-  const canvas = createCanvas(600, 315);
-  const ctx = canvas.getContext("2d");
-
-  ctx.fillStyle = "#111";
-  ctx.fillRect(0, 0, 600, 315);
-
-  ctx.fillStyle = fest.themeColor;
-  ctx.font = "28px Arial";
-  ctx.fillText(fest.name, 40, 60);
-
-  ctx.fillStyle = "#fff";
-  ctx.font = "20px Arial";
-  ctx.fillText(card.from + " → " + card.to, 40, 130);
-
-  ctx.font = "16px Arial";
-  ctx.fillText(card.message.substring(0, 80), 40, 180);
-
-  res.setHeader("Content-Type", "image/png");
-  canvas.createPNGStream().pipe(res);
-});
-
-/* =========================
-   🎉 CARD VIEW
-========================= */
-
-app.get("/card/:id", (req, res) => {
-  const card = cards.find(c => c.id === req.params.id);
-  if (!card) return res.send("Card not found");
-
-  const fest = festivals.find(f => f.slug === card.category);
+  const fest = festivals[festival] || festivals["Birthday"];
 
   res.send(`
   <html>
   <head>
-    <title>Someone sent you a WishLoop 🎁</title>
+    <title>Someone sent you a Wish 🎁</title>
 
-    <meta property="og:title" content="Someone sent you a WishLoop 🎉" />
+    <meta property="og:title" content="Someone sent you a Wish 🎉" />
     <meta property="og:description" content="Tap to open your surprise message" />
-    <meta property="og:image" content="/og/${card.id}" />
 
     <style>
       body {
@@ -279,28 +205,29 @@ app.get("/card/:id", (req, res) => {
 
   <body>
 
-    <h2>🎉 ${card.from} sent you a ${fest.name} wish</h2>
+    <h2>🎉 ${from} sent you a ${fest.name} wish</h2>
 
     <div class="card">
-      <h3>To: ${card.to}</h3>
-      <p>${card.message}</p>
+      <h3>To: ${to}</h3>
+      <p>${message}</p>
     </div>
 
     <br/>
 
-    <a class="btn" href="/wishloop">👉 Create your own</a>
+    <a class="btn" href="https://multitigo.com/wishloop">
+      👉 Create your own
+    </a>
 
   </body>
   </html>
   `);
 });
 
-/* =========================
-   🚀 START SERVER
-========================= */
+/* ===============================
+   START SERVER
+================================ */
+const PORT = process.env.PORT || 10000;
 
-const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, '0.0.0.0', () => {
+app.listen(PORT, () => {
   console.log("Server running on port " + PORT);
 });
