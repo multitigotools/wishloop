@@ -134,9 +134,6 @@ app.get("/wishloop", (req, res) => {
 </html>
 `);
 
-/* =========================
-   🎯 CREATE CARD
-========================= */
 <a href="https://tool.multitigo.com/wishloop">
   Create Greeting Card 🎉
 </a>
@@ -150,10 +147,6 @@ app.post("/create-card", (req, res) => {
 
   res.json({ link: "/card/" + id });
 });
-
-/* =========================
-   🖼️ DYNAMIC OG IMAGE
-========================= */
 
 app.get("/og/:id", (req, res) => {
   const card = cards.find(c => c.id === req.params.id);
