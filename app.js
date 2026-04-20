@@ -215,30 +215,141 @@ app.get("/generate-image/:id", (req, res) => {
 app.get("/wishloop/card/:id", (req, res) => {
   const { from, to, message, festival } = req.query;
 
+  const fest = festivals[festival] || festivals["Birthday"];
+
   const imageUrl = `https://multitigo.com/generate-image/${req.params.id}?from=${encodeURIComponent(from)}&message=${encodeURIComponent(message)}&festival=${festival}`;
 
   res.send(`
   <html>
   <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta property="og:title" content="${from} sent you a wish 🎁" />
+    <meta property="og:title" content="${from} sent you a ${festival} wish 🎁" />
     <meta property="og:description" content="${message}" />
     <meta property="og:image" content="${imageUrl}" />
 
+    <style>
+      body {
+        margin:0;
+        font-family:Arial;
+        color:white;
+        text-align:center;
+        overflow:hidden;
+        transition:0.5s;
+      }
+
+      body.bg {
+        background-size:cover;
+        background-position:center;
+      }
+
+      .overlay {
+        position:fixed;
+        width:100%;
+        height:100%;
+        background:rgba(0,0,0,0.4);
+        top:0;
+        left:0;
+      }
+
+      .container {
+        position:relative;
+        z-index:2;
+        top:50%;
+        transform:translateY(-50%);
+      }
+
+      .gift {
+        font-size:80px;
+        cursor:pointer;
+        animation: bounce 1.5s infinite;
+      }
+
+      @keyframes bounce {
+        0%{transform:translateY(0)}
+        50%{transform:translateY(-15px)}
+        100%{transform:translateY(0)}
+      }
+
+      .card {
+        display:none;
+        animation: fadeIn 1s ease forwards;
+      }
+
+      @keyframes fadeIn {
+        from {opacity:0; transform:scale(0.9)}
+        to {opacity:1; transform:scale(1)}
+      }
+
+      .box {
+        background:rgba(0,0,0,0.5);
+        padding:20px;
+        border-radius:12px;
+        display:inline-block;
+      }
+
+    </style>
   </head>
 
-  <body style="text-align:center;background:#0f172a;color:white;padding:40px;">
+  <body id="page">
 
-    <h2>${from} → ${to}</h2>
-    <p>${message}</p>
+    <div class="overlay"></div>
 
-    <img src="${imageUrl}" style="width:300px;border-radius:12px"/>
+    <!-- STEP 1 (THIS IS WHAT YOU WERE ASKING ABOUT) -->
+    <div class="container" id="step1">
 
-    <br/><br/>
+      <h2>🎁 Hey ${to}!</h2>
 
-    <a href="https://multitigo.com/wishloop">
-      <button style="padding:12px;background:#22c55e;">Create Your Own</button>
-    </a>
+      <p>You’ve received a <b>${festival}</b> Wish 💖</p>
+
+      <p>👉 From: <b>${from}</b></p>
+
+      <p>Tap the gift to open your surprise 🎁</p>
+
+      <div class="gift" onclick="openGift()">🎁</div>
+
+    </div>
+
+    <!-- FINAL CARD -->
+    <div class="container card" id="card">
+
+      <h1>🎉 Happy ${festival} 🎉</h1>
+
+      <img src="${imageUrl}" style="width:90%;max-width:400px;border-radius:15px"/>
+
+      <div class="box">
+        <h3>To: ${to}</h3>
+        <p>${message}</p>
+        <p><b>From: ${from}</b></p>
+      </div>
+
+      <br/>
+
+      <a href="/wishloop">
+        <button style="padding:12px;background:#22c55e;border:none;border-radius:8px;">
+          Create Your Own
+        </button>
+      </a>
+
+    </div>
+
+    <script>
+      function openGift() {
+        document.getElementById("step1").style.display="none";
+        document.getElementById("card").style.display="block";
+
+        const page = document.getElementById("page");
+
+        const backgrounds = {
+          "Birthday": "https://images.unsplash.com/photo-1513151233558-d860c5398176",
+          "Diwali": "https://images.unsplash.com/photo-1607082349566-187342175e2f",
+          "Mother's Day": "https://images.unsplash.com/photo-1529336953121-a0ce7d6b00c5"
+        };
+
+        page.style.backgroundImage = "url(" + backgrounds["${festival}"] + ")";
+        page.classList.add("bg");
+      }
+    </script>
 
   </body>
   </html>
