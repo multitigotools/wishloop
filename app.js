@@ -1,15 +1,6 @@
 const express = require("express");
 const { v4: uuidv4 } = require("uuid");
-
-let canvasAvailable = true;
-let createCanvas;
-
-try {
-  ({ createCanvas } = require("canvas"));
-} catch (e) {
-  console.log("⚠️ Canvas not installed, OG image will be basic");
-  canvasAvailable = false;
-}
+const { createCanvas } = require("canvas");
 
 const app = express();
 app.use(express.json());
@@ -52,7 +43,7 @@ const festivals = [
 ];
 
 /* =========================
-   🧠 STORAGE
+   🧠 STORAGE (MVP)
 ========================= */
 
 const cards = [];
@@ -77,7 +68,7 @@ function getNextFestival() {
 }
 
 /* =========================
-   🌐 MAIN PAGE
+   🌐 MAIN PAGE (WishLoop)
 ========================= */
 
 app.get("/wishloop", (req, res) => {
@@ -94,11 +85,49 @@ app.get("/wishloop", (req, res) => {
   <head>
     <title>WishLoop – Create & Send Wishes</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
     <style>
-      body { font-family: Arial; background:#0f172a; color:#fff; text-align:center; padding:30px; }
-      .box { background:#1e293b; padding:20px; border-radius:10px; max-width:400px; margin:auto; }
-      input, textarea, select { width:100%; margin:10px 0; padding:12px; border-radius:6px; border:none; }
-      button { width:100%; padding:12px; background:#22c55e; color:#fff; border:none; border-radius:6px; cursor:pointer; }
+      body {
+        font-family: Arial;
+        background:#0f172a;
+        color:#fff;
+        text-align:center;
+        padding:30px;
+      }
+
+      h1 { font-size:28px; }
+
+      .box {
+        background:#1e293b;
+        padding:20px;
+        border-radius:10px;
+        max-width:400px;
+        margin:auto;
+      }
+
+      input, textarea, select {
+        width:100%;
+        margin:10px 0;
+        padding:12px;
+        border-radius:6px;
+        border:none;
+      }
+
+      button {
+        width:100%;
+        padding:12px;
+        background:#22c55e;
+        color:#fff;
+        border:none;
+        border-radius:6px;
+        font-size:16px;
+        cursor:pointer;
+      }
+
+      .result {
+        margin-top:20px;
+        word-break:break-all;
+      }
     </style>
   </head>
 
@@ -110,14 +139,17 @@ app.get("/wishloop", (req, res) => {
     <h2>🔥 Create for ${nextFest.name}</h2>
 
     <div class="box">
+
       <select id="category">${options}</select>
+
       <input id="from" placeholder="Your Name"/>
       <input id="to" placeholder="Receiver Name"/>
       <textarea id="message" placeholder="Write your message"></textarea>
 
       <button onclick="createCard()">Create & Share 🚀</button>
 
-      <p id="result"></p>
+      <div class="result" id="result"></div>
+
     </div>
 
     <script>
@@ -137,7 +169,7 @@ app.get("/wishloop", (req, res) => {
 
         document.getElementById("result").innerHTML =
           "🔗 <a href='"+data.link+"' target='_blank'>Open Card</a><br/><br/>" +
-          window.location.origin + data.link;
+          "Copy & Share:<br/>" + window.location.origin + data.link;
       }
     </script>
 
@@ -149,6 +181,9 @@ app.get("/wishloop", (req, res) => {
 /* =========================
    🎯 CREATE CARD
 ========================= */
+<a href="https://tool.multitigo.com/wishloop">
+  Create Greeting Card 🎉
+</a>
 
 app.post("/create-card", (req, res) => {
   const { category, from, to, message } = req.body;
@@ -161,16 +196,12 @@ app.post("/create-card", (req, res) => {
 });
 
 /* =========================
-   🖼️ OG IMAGE
+   🖼️ DYNAMIC OG IMAGE
 ========================= */
 
 app.get("/og/:id", (req, res) => {
   const card = cards.find(c => c.id === req.params.id);
   if (!card) return res.send("Not found");
-
-  if (!canvasAvailable) {
-    return res.redirect("https://via.placeholder.com/600x315.png?text=WishLoop");
-  }
 
   const fest = festivals.find(f => f.slug === card.category);
 
@@ -215,9 +246,30 @@ app.get("/card/:id", (req, res) => {
     <meta property="og:image" content="/og/${card.id}" />
 
     <style>
-      body { text-align:center; background:#0f172a; color:#fff; font-family:Arial; padding:40px; }
-      .card { background:#1e293b; padding:20px; border-radius:10px; display:inline-block; }
-      .btn { margin-top:20px; display:inline-block; padding:12px 20px; background:${fest.themeColor}; color:#000; text-decoration:none; border-radius:6px; }
+      body {
+        text-align:center;
+        background:#0f172a;
+        color:#fff;
+        font-family:Arial;
+        padding:40px;
+      }
+
+      .card {
+        background:#1e293b;
+        padding:20px;
+        border-radius:10px;
+        display:inline-block;
+      }
+
+      .btn {
+        margin-top:20px;
+        display:inline-block;
+        padding:12px 20px;
+        background:${fest.themeColor};
+        color:#000;
+        text-decoration:none;
+        border-radius:6px;
+      }
     </style>
   </head>
 
@@ -243,6 +295,8 @@ app.get("/card/:id", (req, res) => {
    🚀 START SERVER
 ========================= */
 
-app.listen(3000, () => {
-  console.log("🚀 Running → http://localhost:3000/wishloop");
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log("Server running on port " + PORT);
 });
