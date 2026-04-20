@@ -45,33 +45,46 @@ app.get("/wishloop", (req, res) => {
     <style>
       body {
         margin:0;
-        font-family:Arial;
-        background:linear-gradient(135deg,#0f172a,#1e293b);
-        color:white;
+        font-family: 'Segoe UI', sans-serif;
+        height:100vh;
         display:flex;
-        flex-direction:column;
+        justify-content:center;
         align-items:center;
-        padding:20px;
+        background:url('https://images.unsplash.com/photo-1513151233558-d860c5398176') no-repeat center/cover;
+      }
+
+      .overlay {
+        position:absolute;
+        width:100%;
+        height:100%;
+        background:rgba(15,23,42,0.75);
+        backdrop-filter: blur(6px);
+      }
+
+      .container {
+        position:relative;
+        z-index:2;
+        text-align:center;
+        width:90%;
+        max-width:420px;
       }
 
       h1 {
         margin-bottom:10px;
       }
 
-      /* 🎁 PREVIEW CARD */
+      /* 🔥 LIVE PREVIEW CARD */
       .preview {
-        width:90%;
-        max-width:420px;
+        position:relative;
         border-radius:16px;
         overflow:hidden;
-        margin:20px 0;
-        position:relative;
-        box-shadow:0 20px 60px rgba(0,0,0,0.5);
+        margin-bottom:20px;
+        box-shadow:0 20px 60px rgba(0,0,0,0.6);
       }
 
       .preview img {
         width:100%;
-        height:250px;
+        height:240px;
         object-fit:cover;
         filter:brightness(0.7);
       }
@@ -81,26 +94,15 @@ app.get("/wishloop", (req, res) => {
         top:50%;
         left:50%;
         transform:translate(-50%,-50%);
-        text-align:center;
-      }
-
-      .preview-text h2 {
-        margin:0;
-        font-size:22px;
-      }
-
-      .preview-text p {
-        font-size:14px;
-        opacity:0.9;
+        color:white;
       }
 
       /* FORM */
       .box {
-        background:#1e293b;
+        background:rgba(30,41,59,0.7);
+        backdrop-filter: blur(10px);
         padding:20px;
         border-radius:12px;
-        width:90%;
-        max-width:400px;
       }
 
       input, textarea, select {
@@ -126,36 +128,42 @@ app.get("/wishloop", (req, res) => {
 
   <body>
 
-    <h1>🎁 WishLoop</h1>
-    <p>Create → Send → Surprise</p>
+    <div class="overlay"></div>
 
-    <!-- 🔥 LIVE PREVIEW -->
-    <div class="preview">
-      <img id="previewImage" src="https://images.unsplash.com/photo-1513151233558-d860c5398176">
+    <div class="container">
 
-      <div class="preview-text">
-        <h2 id="previewTitle">🎉 Happy Birthday 🎉</h2>
-        <p id="previewFrom">From: You</p>
+      <h1>🎁 WishLoop</h1>
+      <p>Create → Send → Surprise</p>
+
+      <!-- 🔥 PREVIEW -->
+      <div class="preview">
+        <img id="previewImage" src="https://images.unsplash.com/photo-1513151233558-d860c5398176">
+
+        <div class="preview-text">
+          <h2 id="previewTitle">🎉 Happy Birthday 🎉</h2>
+          <p id="previewFrom">From: You</p>
+        </div>
       </div>
-    </div>
 
-    <!-- FORM -->
-    <div class="box">
-      <form action="/create" method="POST">
+      <!-- FORM -->
+      <div class="box">
+        <form action="/create" method="POST">
 
-        <select name="festival" id="festival" onchange="updatePreview()">
-          <option>Birthday</option>
-          <option>Diwali</option>
-          <option>Mother's Day</option>
-        </select>
+          <select name="festival" id="festival" onchange="updatePreview()">
+            <option>Birthday</option>
+            <option>Diwali</option>
+            <option>Mother's Day</option>
+          </select>
 
-        <input name="from" id="from" placeholder="Your Name" oninput="updatePreview()" required />
-        <input name="to" placeholder="Receiver Name" required />
-        <textarea name="message" placeholder="Write your message"></textarea>
+          <input name="from" id="from" placeholder="Your Name" oninput="updatePreview()" required />
+          <input name="to" placeholder="Receiver Name" required />
+          <textarea name="message" placeholder="Write your message"></textarea>
 
-        <button>Create Your Surprise Link 🎁</button>
+          <button>Create Your Surprise Link 🎁</button>
 
-      </form>
+        </form>
+      </div>
+
     </div>
 
     <script>
@@ -171,6 +179,7 @@ app.get("/wishloop", (req, res) => {
 
         document.getElementById("previewTitle").innerText = "🎉 Happy " + fest + " 🎉";
         document.getElementById("previewFrom").innerText = "From: " + from;
+        document.body.style.backgroundImage = "url(" + images[fest] + ")";
         document.getElementById("previewImage").src = images[fest];
       }
     </script>
