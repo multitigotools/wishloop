@@ -237,66 +237,65 @@ app.get("/card/:id", (req, res) => {
   const fest = festivals.find(f => f.slug === card.category);
 
   res.send(`
-  <html>
-  <head>
-    <title>Someone sent you a WishLoop 🎁</title>
+<html>
+<head>
+  <title>Someone sent you a WishLoop 🎁</title>
 
-    <meta property="og:title" content="Someone sent you a WishLoop 🎉" />
-    <meta property="og:description" content="Tap to open your surprise message" />
-    <meta property="og:image" content="/og/${card.id}" />
+  <meta property="og:title" content="Someone sent you a WishLoop 🎉" />
+  <meta property="og:description" content="Tap to open your surprise message" />
+  <meta property="og:image" content="/og/${card.id}" />
 
-    <style>
-      body {
-        text-align:center;
-        background:#0f172a;
-        color:#fff;
-        font-family:Arial;
-        padding:40px;
-      }
+  <style>
+    body {
+      text-align:center;
+      background:#0f172a;
+      color:#fff;
+      font-family:Arial;
+      padding:40px;
+    }
 
-      .card {
-        background:#1e293b;
-        padding:20px;
-        border-radius:10px;
-        display:inline-block;
-      }
+    .card {
+      background:#1e293b;
+      padding:20px;
+      border-radius:10px;
+      display:inline-block;
+    }
 
-      .btn {
-        margin-top:20px;
-        display:inline-block;
-        padding:12px 20px;
-        background:${fest.themeColor};
-        color:#000;
-        text-decoration:none;
-        border-radius:6px;
-      }
-    </style>
-  </head>
+    .btn {
+      margin-top:20px;
+      display:inline-block;
+      padding:12px 20px;
+      background:${fest.themeColor};
+      color:#000;
+      text-decoration:none;
+      border-radius:6px;
+    }
+  </style>
+</head>
 
-  <body>
+<body>
 
-    <h2>🎉 ${card.from} sent you a ${fest.name} wish</h2>
+  <h2>🎉 ${card.from} sent you a ${fest.name} wish</h2>
 
-    <div class="card">
-      <h3>To: ${card.to}</h3>
-      <p>${card.message}</p>
-    </div>
+  <div class="card">
+    <h3>To: ${card.to}</h3>
+    <p>${card.message}</p>
+  </div>
 
-    <br/>
+  <br/>
 
-    <a class="btn" href="/wishloop">👉 Create your own</a>
+  <a class="btn" href="/wishloop">👉 Create your own</a>
 
-  </body>
-  </html>
-  `);
-});
+</body>
+</html>
+`);
 
 /* =========================
    🚀 START SERVER
 ========================= */
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000;
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log("Server running on port " + PORT);
 });
