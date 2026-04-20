@@ -58,7 +58,7 @@ app.get("/wishloop", (req, res) => {
         position:absolute;
         width:100%;
         height:100%;
-        background:rgba(15,23,42,0.75);
+        background:rgba(15,23,42,0.6);
       }
 
       .container {
@@ -74,6 +74,7 @@ app.get("/wishloop", (req, res) => {
         border-radius:16px;
         overflow:hidden;
         margin-bottom:20px;
+        position:relative;
       }
 
       .preview img {
@@ -84,9 +85,9 @@ app.get("/wishloop", (req, res) => {
 
       .preview-text {
         position:absolute;
-        top:120px;
+        top:50%;
         left:50%;
-        transform:translateX(-50%);
+        transform:translate(-50%,-50%);
         color:white;
       }
 
@@ -123,7 +124,6 @@ app.get("/wishloop", (req, res) => {
 
       <h2>🎁 WishLoop</h2>
 
-      <!-- PREVIEW -->
       <div class="preview">
         <img id="previewImage" src="https://images.unsplash.com/photo-1513151233558-d860c5398176">
         <div class="preview-text">
@@ -132,7 +132,6 @@ app.get("/wishloop", (req, res) => {
         </div>
       </div>
 
-      <!-- FORM -->
       <div class="box">
         <form action="/create" method="POST">
 
@@ -169,26 +168,6 @@ app.get("/wishloop", (req, res) => {
         document.getElementById("previewImage").src = images[fest];
       }
     </script>
-
-  </body>
-  </html>
-  `);
-});
-
-  const link = "https://multitigo.com/w/" + id;
-
-  res.send(`
-  <html>
-  <body style="text-align:center;background:#0f172a;color:white;padding:40px;">
-    <h2>🎉 Your Surprise is Ready!</h2>
-
-    <input value="${link}" style="width:80%;padding:10px"/>
-
-    <br/><br/>
-
-    <a href="https://wa.me/?text=${encodeURIComponent(`🎁 ${to}, you got a surprise from ${from}! 👉 ${link}`)}">
-      <button style="padding:12px;background:#22c55e;">Share on WhatsApp</button>
-    </a>
 
   </body>
   </html>
